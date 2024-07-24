@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload and Convert PDF</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .preview img {
+            max-width: 100%;
+            margin: 10px 0;
+        }
+        .filename-list {
+            margin-top: 20px;
+        }
+        .filename-list button {
+            margin-left: 10px;
+        }
+        .preview-box {
+            border: 1px solid #dee2e6;
+            border-radius: 0.25rem;
+            padding: 20px;
+            background-color: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+<div class="container mt-5">
+    <h1 class="mb-3">Upload PDF and Convert to PNG</h1>
+    <div class="row">
+        <div class="col-md-8">
+            <form id="uploadForm" enctype="multipart/form-data" class="mb-4">
+                <div class="form-group">
+                    <input type="file" name="file" accept="application/pdf" class="form-control-file" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Upload and Convert</button>
+                <button type="button" class="btn btn-secondary ml-2" onclick="clearPreview()">Clear Preview</button>
+            </form>
+            <div id="filenameList" class="filename-list"></div>
+        </div>
+        <div class="col-md-4">
+            <div id="preview" class="preview preview-box">
+                <img id="placeholder" src="https://via.placeholder.com/300x400?text=Preview+Image" alt="Preview">
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('uploadForm').addEventListener('submit', async function (event) {
+        event.preventDefault();
+
+        const formData = new FormData(this);
+        const response = await fetch('/conv', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (response.ok) {
+            const result = await response.json();
+            const hash = result.hash;
+            const pages = result.pages;
+
+            const filenameList = document.getElementById('filenameList');
+            filenameList.innerHTML = '<h2>Converted Images</h2>';
+
+            for (let i = 0; i < pages; i++) {
+                const listItem = document.createElement('div');
+                listItem.className = "mb-2";
+                listItem.innerHTML = `Page ${i + 1} <button class="btn btn-link p-0" onclick="previewImage('${hash}', ${i})">Preview</button>`;
+                filenameList.appendChild(listItem);
+            }
+        } else {
+            const errorResult = await response.json();
+            alert('Error: ' + errorResult.error);
+        }
+    });
+
+    function previewImage(hash, page) {
+        const img = document.createElement('img');
+        img.src = `/img/${hash}/${page}.png`;
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '';  // Clear previous image
+        preview.appendChild(img);
+    }
+
+    function clearPreview() {
+        const preview = document.getElementById('preview');
+        preview.innerHTML = '<img id="placeholder" src="https://via.placeholder.com/300x400?text=Preview+Image" alt="Preview">';
+    }
+</script>
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>

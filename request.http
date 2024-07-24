@@ -1,0 +1,11 @@
+### Convert a PDF to PNG
+POST http://localhost:5000/conv
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="file.pdf"
+Content-Type: application/pdf
+
+< ./samples/file.pdf
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+

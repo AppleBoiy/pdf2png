@@ -1,0 +1,3 @@
+Flask==2.3.3
+pdf2image==1.17.0
+werkzeug~=3.0.3
